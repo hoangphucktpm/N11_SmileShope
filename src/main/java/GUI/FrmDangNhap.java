@@ -204,6 +204,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 	
 	
 
+
 	public boolean kiemTraDangNhap(String username, String password) {
 		taiKhoan = dao.getTK(username);
 //	    System.out.println(taiKhoan);
