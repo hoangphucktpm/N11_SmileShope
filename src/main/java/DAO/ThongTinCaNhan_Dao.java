@@ -94,9 +94,8 @@ public class ThongTinCaNhan_Dao {
 	    try {
 	        Connection con = ConnectDatabase.getInstance().getConnection();
 	        PreparedStatement stmt = null;
-	        String sql = "SELECT TenNhanVien FROM dbo.KhachHang WHERE MaNhanVien = ?";
+	        String sql = "SELECT MaNhanVien FROM NhanVien WHERE MaNhanVien = '"+ manv +"'";
 	        stmt = con.prepareStatement(sql);
-	        stmt.setString(1, manv);
 	        ResultSet rs = stmt.executeQuery();
 	       
 	        while (rs.next()) {
@@ -143,5 +142,25 @@ public class ThongTinCaNhan_Dao {
 		} catch (Exception e3) {
 			// TODO: handle exception
 		}
+	}
+	public String mailNhanVien(String manv) {
+		 String mail ="";
+	    try {
+	        Connection con = ConnectDatabase.getInstance().getConnection();
+	        PreparedStatement stmt = null;
+	        String sql = "select Email from NhanVien where MaNhanvien  = ?";
+	        stmt = con.prepareStatement(sql);
+	        stmt.setString(1, manv);
+	        ResultSet rs = stmt.executeQuery();
+	       
+	        while (rs.next()) {
+	           
+	        	mail = rs.getString(1);
+
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return mail;
 	}
 }

@@ -7,10 +7,13 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import DAO.ThongTinCaNhan_Dao;
 import Entity.NhanVien;
 import Entity.taiKhoan;
+import xuly.SendEmailSMTP;
 
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import java.awt.Font;
 import java.awt.Color;
@@ -33,7 +36,13 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 	private JButton btnQMK;
 	private JTextField yourPasswordField;
 	private JButton btnQuayLai;
-
+	
+	public String email = "";
+	public String user= "";
+	public String newPass = matKhauMoi();
+	xuly.SendEmailSMTP sendMail = new SendEmailSMTP();
+	ThongTinCaNhan_Dao dao = new ThongTinCaNhan_Dao();
+	
 
 
 	/**
@@ -123,11 +132,21 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object o = e.getSource();
-		 if(o.equals(btnQMK)) {
-			FrmQuenMatKhau frmQuenMatKhau = new FrmQuenMatKhau();
-			frmQuenMatKhau.setVisible(true);
-			
-			this.setVisible(false);
+		 if(o.equals(btnQuenMK)) {
+			 if(valiData() == true)
+			 if (sendMail.sendMail(email, user, newPass) == true)
+			 {
+				 JOptionPane.showMessageDialog(null, "Thay đổi mật khẩu thành công. hãy kiểm tra Email của bạn.");
+				 dao.suaMK(newPass, user);
+				 FrmDangNhap frmDangNhap = new FrmDangNhap();
+			        frmDangNhap.setVisible(true);
+			        frmDangNhap.setLocationRelativeTo(null);
+			        this.setVisible(false);
+			 } else
+			 {
+				 JOptionPane.showMessageDialog(null, "Lỗi");
+			 }
+
 		}
 		 else if(o.equals(btnQuayLai)) {
 			 FrmDangNhap frmDangNhap = new FrmDangNhap();
@@ -135,42 +154,45 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 		     this.setVisible(false);
 		 }
 	}
-	public Object validateData() {
-	    String user = txtUserName.getText().trim();
-	    if (user.isEmpty()) {
+	public boolean valiData() {
+	   
+	    if (txtUserName.getText().trim().isEmpty()) {
 	        ShowErrorField("Tên đăng nhập không được rỗng", txtUserName);
-	        return null;
+	        return false;
 	    }
-
-	    String email = txtMail.getText().trim();
-	    if (email.isEmpty()) {
+	    else if (dao.tenNV(txtUserName.getText()).isBlank() || dao.tenNV(txtUserName.getText()).isEmpty() || dao.tenNV(txtUserName.getText()).equalsIgnoreCase(""))
+	    {
+	    	ShowErrorField("Nhân viên không tồn tại", txtUserName);
+	    	System.out.println("Tên " + dao.tenNV(txtUserName.getText()));
+	    	return false;
+	    }
+	    else
+	    {
+	    	 user = txtUserName.getText().trim();
+	    }
+	    	
+	   
+	    if (txtMail.getText().trim().isEmpty()) {
 	        ShowErrorField("Email không được rỗng", txtMail);
-	        return null;
-	    } else if (!isValidEmail(email)) {
+	        return false;
+	    } else if (!isValidEmail(txtMail.getText().trim())) {
 	        ShowErrorField("Vui lòng nhập đúng địa chỉ email hợp lệ", txtMail);
-	        return null;
+	        return false;
 	    }
-
-	    String password = getPasswordFromYourPasswordField(); // Replace with the actual method to get the password.
-	    if (password.isEmpty()) {
-	        ShowErrorField("Mật khẩu không được rỗng", yourPasswordField);
-	        return null;
-	    } else if (!isValidPassword(password)) {
-	        ShowErrorField("Vui lòng nhập mật khẩu hợp lệ", yourPasswordField);
-	        return null;
+	    else if (!txtMail.getText().equalsIgnoreCase(dao.mailNhanVien(user)))
+	    {
+	    	ShowErrorField("Mail không phải của nhân viên này.", txtMail);
+	    	return false;
 	    }
-
+	    else
+	    {
+	    	email = txtMail.getText().trim();
+	    }
 	    // Nếu tất cả ràng buộc được thỏa mãn, bạn có thể trả về email hoặc mật khẩu hoặc cả hai tùy theo yêu cầu của bạn.
-	    return email;
+	    return true;
 	}
-
-	private String getPasswordFromYourPasswordField() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private void ShowErrorField(String string, JTextField textField2) {
-		// TODO Auto-generated method stub
+		JOptionPane.showMessageDialog(textField2, string);
 		
 	}
 
@@ -179,9 +201,17 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 	    String emailRegex = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 	    return email.matches(emailRegex);
 	}
+//	random mật khẩu mới
+	public String matKhauMoi() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder randomString = new StringBuilder();
 
-	private boolean isValidPassword(String password) {
-	    // Thêm ràng buộc cho mật khẩu nếu cần.
-	    return password.length() >= 8; // Ví dụ: Mật khẩu phải có ít nhất 8 ký tự.
-	}
+        for (int i = 0; i < 8; i++) {
+            int index = (int) (Math.random() * characters.length());
+            randomString.append(characters.charAt(index));
+        }
+
+        return randomString.toString();
+    }
+
 }

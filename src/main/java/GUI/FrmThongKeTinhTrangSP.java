@@ -607,7 +607,6 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 	        {
 	        	double tongHoaDon = dao.tongTienBan(i);
 	        	String nhanVienTop = dao.sanPhamTop(i);
-	        	System.out.println(tongHoaDon);
 	        	if (tongHoaDon != 0)
 	        	{
 	        		dataset.addValue(tongHoaDon/1000000, "Số tiền", nhanVienTop);

@@ -1,61 +1,94 @@
-//package xuly;
-//
-//import javax.mail.*;
-//import javax.mail.internet.InternetAddress;
-//import javax.mail.internet.MimeMessage;
-//import java.util.Properties;
-//
-//public class SendEmailSMTP {
-//    private static Object Session;
-//
-//	public static String getOTP() {
-//        int min = 100000;
-//        int max = 999999;
-//        return Integer.toString((int) ((Math.random() * (max - min)) + min));
-//    }
-//    
-//    public static void sendOTP(String emailTo, String otp) {
-//        String username = "tsinh11111@gmail.com";
-//        String password = "ojldjxeqzmdxznbh";
-//        Properties prop = new Properties();
-//        prop.put("mail.smtp.host", "smtp.gmail.com");
-//        prop.put("mail.smtp.port", "587");
-//        prop.put("mail.smtp.auth", "true");
-//        prop.put("mail.smtp.starttls.enable", "true"); //TLS
-//
-//        Session session = Session.getInstance(prop,
-//                new javax.mail.Authenticator() {
-//            @Override
-//            protected PasswordAuthentication getPasswordAuthentication() {
-//                return new PasswordAuthentication(username, password);
-//            }
-//        });
-//
-//        try {
-//            Message message = new MimeMessage(session);
-//            message.setFrom(new InternetAddress(username));
-//            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailTo));
-//            message.setSubject("OTP");
-//            message.setContent("<div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">" +
-//"                <div style=\"margin:50px auto;width:70%;padding:20px 0\">" +
-//"                <div style=\"border-bottom:1px solid #eee\">" +
-//"                    <a href=\"#\" style=\"font-size:1.4em;color: #00466a;text-decoration:none;font-weight:600\">WarehouseManagement</a>" +
-//"                </div>" +
-//"                <p style=\"font-size:1.1em\">Hi,</p>" +
-//"                <p>Thank you for choosing Your Brand. Use the following OTP to complete your Sign Up procedures. OTP is valid for 5 minutes</p>" +
-//"                <h2 style=\"background: #00466a;margin: 0 auto;width: max-content;padding: 0 10px;color: #fff;border-radius: 4px;\">" + otp + "</h2>" +
-//"                <p style=\"font-size:0.9em;\">Regards,<br />QA</p>" +
-//"                <hr style=\"border:none;border-top:1px solid #eee\" />" +
-//"                <div style=\"float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300\">" +
-//"                    <p>App WarehouseManagemen</p>" +
-//"                    <p>Số 273 An Dương Vương, Phường 3, Quận 5, TP. HCM</p>" +
-//"                    <p>Việt Nam</p>" +
-//"                </div>" +
-//"                </div>" +
-//"                </div>", "text/html; charset=utf-8");
-//            Transport.send(message);
-//        } catch (MessagingException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//}
+package xuly;
+
+import java.util.Date;
+import java.util.Properties;
+import javax.mail.Authenticator;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
+import GUI.FrmQuenMatKhau;
+
+public class SendEmailSMTP {
+//	pass rogz dvjl asuy saic
+//	email: smileshopptit@gmail.com
+	static final String fromMail = "smileshopptit@gmail.com";
+	static final String passMail = "rogzdvjlasuysaic";
+
+	
+//	TLS
+//	Đăng nhập vào hệ thống
+	public static void main(String[] args) {
+		
+		
+		
+	}
+	public static boolean sendMail(String mailTo, String userName, String newPW)
+	{
+			
+	//		Properties: các thuộc tính
+			
+			Properties props = new Properties();
+			props.put("mail.smtp.host", "smtp.gmail.com"); //SMTP 
+			props.put("mail.smtp.port", "587");	// TLS 587
+			props.put("mail.smtp.auth", "true");//Phải đăng nhập vào host??
+			props.put("mail.smtp.starttls.enable", "true");
+			
+	//		tạo Authenticator
+			Authenticator auth = new Authenticator() {
+	
+				@Override
+				protected PasswordAuthentication getPasswordAuthentication() {
+					// TODO Auto-generated method stub
+					return new PasswordAuthentication(fromMail, passMail);
+				}
+				
+			};
+			
+	//		Phiên làm việc
+			Session session = Session.getInstance(props, auth);
+			
+			
+	//		Gửi email
+	//		Tạo tin nhắn mới
+			MimeMessage mess = new MimeMessage(session);
+			try {
+				mess.addHeader("Cấp mật khẩu mới", "text/HTML; charset = UTF-8");
+				mess.setFrom(fromMail); //Người gửi
+				mess.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mailTo, false)); //Người nhận
+				
+	//			Tiêu đề email
+				mess.setSubject("Cấp mật khẩu mới");
+	//			Quy định ngày gửi
+				mess.setSentDate(new Date());
+	//			Nội dung mail
+				 mess.setContent(" <div style=\"font-family: Helvetica,Arial,sans-serif;min-width:1000px;overflow:auto;line-height:2\">\r\n"
+				 		+ "                      <div style=\"margin:50px auto;width:70%;padding:20px 0\">\r\n"
+				 		+ "                      <div style=\"border-bottom:1px solid #eee\">\r\n"
+				 		+ "                         <a href=\"#\" style=\"font-size:1.4em;color: #fc9055;text-decoration:none;font-weight:600\">SmileShop</a>\r\n"
+				 		+ "                     </div>\r\n"
+				 		+ "                     <p style=\"font-size:1.1em\">Đã thay đổi mật khẩu cho ứng dụng quản lý cửa hàng thời trang,</p>\r\n"
+				 		+ "                     <p>Tài khoản: "+ userName +"</p>\r\n"
+				 		+ "                     <p>Mật khẩu mới: " + newPW +"</p>\r\n"
+				 		+ "                     <div style=\"float:right;padding:8px 0;color:#aaa;font-size:0.8em;line-height:1;font-weight:300\">\r\n"
+				 		+ "                         <p>SmileShop</p>\r\n"
+				 		+ "                         <p>12 Nguyễn Văn Bảo - Phường 4 - Gò Vấp - Thành phố Hồ Chí Minh</p>\r\n"
+				 		+ "                         <p>Việt Nam</p>\r\n"
+				 		+ "                     </div>\r\n"
+				 		+ "                     </div>\r\n"
+				 		+ "                     </div>", "text/html; charset=utf-8");
+				
+				Transport.send(mess);
+				return true;
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
+			}
+			
+	}
+}

@@ -517,10 +517,9 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 	        {
 	        	int tongHoaDon = dao.tongHoaDon(i);
 	        	String nhanVienTop = dao.nhanVienTop(i);
-	        	System.out.println(tongHoaDon);
 	        	if (tongHoaDon != 0)
 	        	{
-	        		dataset.addValue(tongHoaDon, "Số tiền", nhanVienTop);
+	        		dataset.addValue(tongHoaDon, "Hóa Đơn", nhanVienTop);
 	        	}
 	        }    
 	        return dataset;

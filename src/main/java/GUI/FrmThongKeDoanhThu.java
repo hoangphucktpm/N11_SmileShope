@@ -702,7 +702,6 @@ public class FrmThongKeDoanhThu extends JFrame implements ActionListener{
 	        {
 	        	double tienMua = dao.tongDoanhThuCuaKhachHang(i);
 	        	String tenKH = dao.khachHangTop(i);
-	        	System.out.println(tienSo.format(tienMua));
 	        	if (tienMua != 0)
 	        	{
 	        		dataset.addValue(Double.parseDouble(tienSo.format(tienMua))/1000000, "Số tiền", tenKH);
