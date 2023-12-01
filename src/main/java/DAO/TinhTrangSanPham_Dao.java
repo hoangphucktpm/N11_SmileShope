@@ -31,7 +31,7 @@ public class TinhTrangSanPham_Dao {
 		sanPham chkEnum = new sanPham();
 		try {
 			Connection con = ConnectDatabase.getInstance().getConnection();
-			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size\r\n"
+			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size\r\n"
 					+ "from SanPham "
 					+ "where Soluong = 0";
 			Statement statement = con.createStatement();
@@ -101,7 +101,7 @@ public class TinhTrangSanPham_Dao {
 		sanPham chkEnum = new sanPham();
 		try {
 			Connection con = ConnectDatabase.getInstance().getConnection();
-			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size\r\n"
+			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size\r\n"
 					+ "from SanPham "
 					+ "where Soluong > 0";
 			Statement statement = con.createStatement();
@@ -134,7 +134,7 @@ public class TinhTrangSanPham_Dao {
 		sanPham chkEnum = new sanPham();
 		try {
 			Connection con = ConnectDatabase.getInstance().getConnection();
-			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size\r\n"
+			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size\r\n"
 					+ "from SanPham "
 					+ "where Soluong <= 10 and Soluong > 0";
 			Statement statement = con.createStatement();
@@ -166,7 +166,7 @@ public class TinhTrangSanPham_Dao {
 	    List<ThongKeSanPham> list = new ArrayList<>();
 	    try {
 	        Connection con = ConnectDatabase.getInstance().getConnection();
-	        String sql = "select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size\r\n"
+	        String sql = "select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size\r\n"
 						+ "from SanPham "
 						+  "WHERE Ngaynhap = CONVERT(date, ?, 105)";
 	        PreparedStatement preparedStatement = con.prepareStatement(sql);
@@ -201,7 +201,7 @@ public class TinhTrangSanPham_Dao {
 		LocalDate sixMonthsAgo = LocalDate.now().minusMonths(6);
 		try {
 			Connection con = ConnectDatabase.getInstance().getConnection();
-			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size\r\n"
+			String sql="select maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size\r\n"
 					+ "from SanPham "
 					+ "                     WHERE Soluong > 0 AND (Ngaynhap <= ? OR Ngaynhap IS NULL)";
 			PreparedStatement preparedStatement = con.prepareStatement(sql);
@@ -235,7 +235,7 @@ public class TinhTrangSanPham_Dao {
 		List<ThongKeSanPham> list= new ArrayList<>();
 		try {
 			Connection con = ConnectDatabase.getInstance().getConnection();
-			String sql="select distinct maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, Gianhap, MauSac, Size from SanPham s\r\n"
+			String sql="select distinct maSp, Tensp, LoaiSanPham, Soluong, Ngaynhap, Gianhap, GiaBan, MauSac, Size from SanPham s\r\n"
 					+ "join CT_HoaDon ct on s.maSp = ct.MaSanPham\r\n"
 					+ "join HoaDon h on h.MaHoaDon = ct.MaHoaDon\r\n"
 					+ "					where day(NgayLapHoaDon) = ? and MONTH(NgayLapHoaDon) = ? and year(NgayLapHoaDon) = ?" ;

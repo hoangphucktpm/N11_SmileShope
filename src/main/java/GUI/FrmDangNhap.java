@@ -42,7 +42,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 	private JButton btnQMK;
 	private JPasswordField txtPassWord;
 	private JLabel lblDangNhap;
-	private JLabel lblMessLoiUser;
+
 	public static  taiKhoan taiKhoan;
 	private JRadioButton rdHienMK;
 	private NhanVien_Dao dao = new NhanVien_Dao();
@@ -52,7 +52,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 	private String matKhauAdmin = "12345678";
 	public static String usernameToGetNhanVien="";
 	private JButton btnLamMoi;
-
+	private JLabel lblMessLoiUser;
 
 
 	
@@ -93,20 +93,20 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		contentPane.add(lblUserName);
 		
 		txtUserName = new JTextField();
-		txtUserName.setBounds(449, 100, 268, 30);
+		txtUserName.setBounds(449, 87, 268, 30);
 		contentPane.add(txtUserName);
 		txtUserName.setColumns(10);
 
 		
 		JLabel lblPassWord = new JLabel("PASSWORD");
 		lblPassWord.setFont(new Font("Times New Roman", Font.BOLD, 15));
-		lblPassWord.setBounds(449, 140, 160, 35);
+		lblPassWord.setBounds(449, 127, 160, 35);
 		contentPane.add(lblPassWord);
 		
 		rdHienMK = new JRadioButton("Hiện mật khẩu");
 		rdHienMK.setBackground(new Color(255, 255, 255));
 		rdHienMK.setFont(new Font("Times New Roman", Font.PLAIN, 15));
-		rdHienMK.setBounds(619, 221, 167, 21);
+		rdHienMK.setBounds(613, 210, 167, 21);
 		contentPane.add(rdHienMK);
 		
 		AbstractAction actionDangNhap = new AbstractAction("Đăng nhập") {
@@ -118,7 +118,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		btnDangNhap.setIcon(new ImageIcon("Anh\\dangnhap.png"));
 		btnDangNhap.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		btnDangNhap.setBackground(new Color(0, 255, 0));
-		btnDangNhap.setBounds(449, 248, 268, 35);
+		btnDangNhap.setBounds(449, 275, 268, 21);
 		contentPane.add(btnDangNhap);
 
 		getRootPane().setDefaultButton(btnDangNhap);
@@ -129,12 +129,12 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		btnQMK.setForeground(new Color(255, 0, 0));
 		btnQMK.setFont(new Font("Times New Roman", Font.BOLD, 15));
 		btnQMK.setBackground(new Color(255, 255, 255));
-		btnQMK.setBounds(470, 293, 234, 30);
+		btnQMK.setBounds(470, 306, 234, 21);
 		btnQMK.setBorderPainted(false);
 		contentPane.add(btnQMK);
 		
 		txtPassWord = new JPasswordField();
-		txtPassWord.setBounds(449, 185, 268, 30);
+		txtPassWord.setBounds(449, 172, 268, 30);
 		contentPane.add(txtPassWord);
 		
 		lblDangNhap = new JLabel("ĐĂNG NHẬP");
@@ -151,12 +151,20 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		btnLamMoi.setForeground(new Color(0, 0, 0));
 		btnLamMoi.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		btnLamMoi.setBackground(Color.WHITE);
-		btnLamMoi.setBounds(519, 323, 148, 30);
+		btnLamMoi.setBounds(517, 333, 148, 20);
 		btnLamMoi.setBorderPainted(false);
 		contentPane.add(btnLamMoi);
 		
+		lblMessLoiUser = new JLabel("");
+		lblMessLoiUser.setForeground(Color.RED);
+		lblMessLoiUser.setFont(new Font("Times New Roman", Font.PLAIN, 15));
+		lblMessLoiUser.setBounds(443, 237, 337, 28);
+		contentPane.add(lblMessLoiUser);
+
+		
 		txtUserName.setText("NV001");
 		txtPassWord.setText("12345678");
+		
 		
 		btnDangNhap.addActionListener(this);
 		btnQMK.addActionListener(this);
@@ -195,7 +203,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		// ten dang nhap phai la chu hoac so va khong co ki tu dac biet co toi da tu 5-20 ki tu
 		boolean match = username.matches("[a-zA-z0-9 ]{3,20}");
 		if(match!=true) {
-			lblMessLoiUser.setText("Lỗi: Tên đăng Nhập(Không Chứa Ký Tự  ?ặt Biệt,Tối Thiểu 3-20 Ký Tự)");
+			lblMessLoiUser.setText("Lỗi: Tên đăng nhập phải là mã nhân viên");
 			return false;
 		}
 		else
@@ -242,11 +250,14 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 
 	            // Kiểm tra xem tên đăng nhập có tồn tại hay không
 	            if (!kiemTraDangNhap(username, password)) {
-	                JOptionPane.showMessageDialog(this, "Tên Đăng Nhập hoặc Mật Khẩu Sai.");
+	            	if (!kiemTraDangNhap(username, password)) {
+	            	    lblMessLoiUser.setText("Tên Đăng Nhập hoặc Mật Khẩu Sai.");
+	            	    return;
+	            	}
+
 	                return; 
 	            }
-
-	            if (TrangThaiDangNhapNhanVien && TrangThaiDangNhapQuanLy) {
+        if (TrangThaiDangNhapNhanVien && TrangThaiDangNhapQuanLy) {
 	                // Vai trò: Quản lý và Nhân viên
 	            	FrmManHinhChinh frmManHinhChinh = new FrmManHinhChinh(username);
 	                frmManHinhChinh.setVisible(true);
@@ -263,7 +274,7 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 	                frmManHinhChinh.setVisible(true);
 	                this.setVisible(false);
 	            } else {
-	                JOptionPane.showMessageDialog(this, "Tên Đăng Nhập hoặc Mật Khẩu Sai.");
+	            	lblMessLoiUser.setText("Tên Đăng Nhập hoặc Mật Khẩu Sai.");
 	            }
 	        }
 	    } catch (Exception e2) {
@@ -277,5 +288,4 @@ public class FrmDangNhap extends JFrame implements ActionListener{
 		txtPassWord.setText("");
 		txtUserName.requestFocus();
 	}
-	
 }

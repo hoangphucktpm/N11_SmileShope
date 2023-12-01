@@ -7,10 +7,11 @@
   <dependencies>
     <!-- Các dependencies khác -->
     <dependency>
-        <groupId>org.jfree</groupId>
-        <artifactId>jfreechart</artifactId>
-        <version>1.5.3</version> <!-- Thay phiên bản tương ứng -->
-    </dependency>
+    <groupId>org.jfree</groupId>
+    <artifactId>jfreechart</artifactId>
+    <version>1.5.3</version>
+</dependency>
+
     <!-- Các dependencies khác -->
 
     <dependency>

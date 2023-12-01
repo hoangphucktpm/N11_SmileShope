@@ -61,6 +61,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -104,7 +105,12 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 	private NhanVien_Dao daoNV = new NhanVien_Dao();
 	private JPanel pnlBieuDo;
 	public ChartPanel chartPanel;
+	private int day;
+	private int month;
+	private int year;
 
+	private FrmInThongKe frmInTK = new FrmInThongKe();
+	private JButton btnInThongKe;
 	public FrmThongKeHoaDon() {
 		
 		pnlThongTin = new JPanel();
@@ -269,9 +275,8 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 		pnTable.setLayout(null);
 		
 		JScrollPane scrDSHD;
-		String[] tb1 = new String[] {"STT","Mã Hóa Đơn","Mã Nhân viên","Ca Làm Việc","Số lượng","Ngày Lập","Loại Khách","Doanh thu"};
-		tablemodel = new DefaultTableModel(tb1, 0);
-		table_1 = new JTable(tablemodel);
+		
+		table_1 = bangThongKe(tablemodel);
 
 		table_1.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		table_1.setBackground(new Color(224, 255, 255));
@@ -285,7 +290,7 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 		btnXem.setIcon(new ImageIcon("Anh\\xembaocao.png"));
 		btnXem.setFont(new Font("Times New Roman", Font.BOLD, 16));
 		btnXem.setBackground(new Color(0, 255, 255));
-		btnXem.setBounds(537, 745, 188, 50);
+		btnXem.setBounds(644, 745, 188, 50);
 		pnlThongTin.add(btnXem);
 		
 		pnlTieuDe = new JPanel();
@@ -313,13 +318,22 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
 		
 		pnlBieuDo.add(chartPanel);
+		
+		btnInThongKe = new JButton("In báo cáo");
+		btnInThongKe.setFont(new Font("Times New Roman", Font.BOLD, 16));
+		btnInThongKe.setBackground(Color.CYAN);
+		btnInThongKe.setBounds(446, 745, 188, 50);
+		pnlThongTin.add(btnInThongKe);
 		chartPanel.repaint();
+		
+		btnInThongKe.setEnabled(false);
 		
 		upDateComboBox();
 		phanQuyen();
 		
 		cbNV.addActionListener(this);
 		btnXem.addActionListener(this);
+		btnInThongKe.addActionListener(this);
 ;
 	}
 	public static void main(String[] args) {
@@ -382,9 +396,9 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 		Calendar ngayCld = Calendar.getInstance();
 		ngayCld.setTime(txtChonNgay.getDate());
 		
-		int day = ngayCld.get(Calendar.DATE);
-		int month = ngayCld.get(Calendar.MONTH) + 1;
-		int year = ngayCld.get(Calendar.YEAR);
+		day = ngayCld.get(Calendar.DATE);
+		month = ngayCld.get(Calendar.MONTH) + 1;
+		year = ngayCld.get(Calendar.YEAR);
 		
 		if(cbCa.getSelectedItem().equals("Tất cả"))
 		ca = 0;
@@ -394,12 +408,14 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 			ca = 2;
 		if(cbNV.getSelectedItem().equals("Tất cả"))
 		{
+			btnInThongKe.setEnabled(true);
 			List<ThongKeHoaDon> list = dao.getHoaDonTheoNgayVaCa(day, month, year , ca);
 			if (list != null && !list.isEmpty())
 			docDuLieu(list, n);
 			else
 			{
 				JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn");
+				btnInThongKe.setEnabled(false);
 				textHDDL.setText(String.valueOf(0));
 				textSPDB.setText(String.valueOf(0));
 				textTT.setText(String.valueOf(0));
@@ -407,6 +423,7 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 				
 			}
 		else {
+			btnInThongKe.setEnabled(true);
 			String maNV = (String) cbNV.getSelectedItem();
 			List<ThongKeHoaDon> listNV = dao.getHoaDonTheoNV(day, month, year, maNV, ca);
 			if (listNV != null && !listNV.isEmpty())
@@ -414,6 +431,7 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 			else
 			{
 				JOptionPane.showMessageDialog(this, "Không tìm thấy hóa đơn");
+				btnInThongKe.setEnabled(false);
 				textHDDL.setText(String.valueOf(0));
 				textSPDB.setText(String.valueOf(0));
 				textTT.setText(String.valueOf(0));
@@ -423,7 +441,7 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 	}
 	public void docDuLieu(List<ThongKeHoaDon> list, int n)
 	{
-		DecimalFormat tien = new DecimalFormat("#,##0 VND");
+		DecimalFormat tien = new DecimalFormat("#,##0 VNĐ");
 		int soSP = 0;
 		double sum = 0;
 		for (ThongKeHoaDon hd : list)
@@ -452,10 +470,15 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 			xoaAllDataTable();
 			try {
 				hoaDonTheoNgayVaCa();
+				
 			} catch (ParseException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		}
+		else if (o.equals(btnInThongKe))
+		{
+			inThongKe();
 		}
 	}
 //	Phân quyền chức năng người dùng
@@ -492,22 +515,32 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
                 "NHÂN VIÊN LẬP ĐƯỢC NHIỀU HÓA ĐƠN NHẤT TRONG THÁNG",
                 null, "Số hóa đơn",
                 createDataset(), PlotOrientation.VERTICAL, false, false, false);
-		
+			TextTitle title = new TextTitle("NHÂN VIÊN LẬP ĐƯỢC NHIỀU HÓA ĐƠN NHẤT TRONG THÁNG");
+	        title.setFont(new Font("Times New Roman", Font.BOLD, 20));
+	        barChart.setTitle(title);
+
 			CategoryPlot plot = (CategoryPlot) barChart.getPlot();
 			BarRenderer renderer = (BarRenderer) plot.getRenderer();
 			
 			// Tùy chỉnh trục x (CategoryAxis)
 	        CategoryAxis xAxis = plot.getDomainAxis();
 	        xAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 13));
-
+	        xAxis.setTickLabelPaint(Color.BLACK);
+	        xAxis.setMaximumCategoryLabelLines(2); 
+	        
 	        // Tùy chỉnh trục y (NumberAxis)
 	        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
 	        yAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 13));
-	        
+	        yAxis.setTickLabelPaint(Color.BLACK);
+	        yAxis.setAxisLinePaint(Color.BLACK);
 	        
 			renderer.setSeriesPaint(0, new Color(52, 155, 235));
 			renderer.setBarPainter(new StandardBarPainter());
 			renderer.setMaximumBarWidth(0.05);  
+			
+			plot.getRangeAxis().setLowerMargin(0.2);
+			plot.getRangeAxis().setUpperMargin(0.2);
+			
 			plot.setBackgroundPaint(new Color(223, 229, 235));
 			return barChart;
 	}
@@ -519,7 +552,7 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 	        	String nhanVienTop = dao.nhanVienTop(i);
 	        	if (tongHoaDon != 0)
 	        	{
-	        		dataset.addValue(tongHoaDon, "Hóa Đơn", nhanVienTop);
+	        		dataset.addValue(tongHoaDon, "Hóa Đơn", nhanVienTop + "\n" + tongHoaDon + " hóa đơn");
 	        	}
 	        }    
 	        return dataset;
@@ -528,4 +561,50 @@ public class FrmThongKeHoaDon extends JFrame implements ActionListener{
 		    chartPanel.setChart(bieuDo());
 		    chartPanel.repaint();
 		}
+	 public JTable bangThongKe (DefaultTableModel model)
+	 {
+		
+		 
+		 	String[] tb = new String[] {"STT","Mã Hóa Đơn","Mã Nhân viên","Ca Làm Việc","Số lượng","Ngày Lập","Loại Khách","Doanh thu"};
+
+			model = new DefaultTableModel(tb,0);
+			JTable table_DS = new JTable(model);
+			table_DS.setBackground(Color.WHITE);
+			table_DS.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+			table_DS.setBackground(new Color(224, 255, 255));
+			table_DS.setForeground(new Color(0, 0, 0));
+			
+			return table_DS;
+	 }
+	 public void inThongKe()
+	 {
+		 String hinhThucThongKe = "";
+				hinhThucThongKe = "NGÀY " + day +" THÁNG "+month + " NĂM " + year;
+		 String lbl1 = lblHHDLTT.getText();
+		 String lbl2 = lblSPDBTT.getText();
+		 String lbl3 = lblTTTT.getText();
+		 String lbl4 = "Nhân viên: ";
+		 String lbl5 = "Họ tên: ";
+		 String lbl6 = "Ca: ";
+		 String TonghoaDon = textHDDL.getText();
+		 String soSP = textSPDB.getText();
+		 String tongTien = textTT.getText();
+		 String nhanVien = cbNV.getSelectedItem().toString();
+		 String tenNhanVien = txtTenNV.getText();
+		 String ca = cbCa.getSelectedItem().toString();
+		 frmInTK.setVisible(true);
+		 frmInTK.setDuLieuThongKe(lbl1, lbl2, lbl3, lbl4, lbl5, lbl6, TonghoaDon, soSP, tongTien, nhanVien, tenNhanVien, ca);
+		 frmInTK.taoBangThongKe(bangThongKe(tablemodel), 2);
+		 frmInTK.xoaAllDataTable();
+		 frmInTK.capNhatBangThongKe(tablemodel);
+		 frmInTK.tieuDe("THỐNG KÊ HÓA ĐƠN ĐÃ LẬP VÀO " + hinhThucThongKe);
+		 Date currentDate = new Date();
+
+	        // Định dạng ngày
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("'(Thống kê được in vào ngày' d 'tháng' M 'năm' y)");
+	        String formattedDate = dateFormat.format(currentDate);
+	        frmInTK.ngayIn(formattedDate);
+		 frmInTK.printThongKe();
+		 
+	 }
 }

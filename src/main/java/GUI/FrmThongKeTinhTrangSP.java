@@ -7,14 +7,16 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.sql.Date;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -46,6 +48,7 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.StandardBarPainter;
+import org.jfree.chart.title.TextTitle;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
@@ -91,6 +94,13 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 	private JTextField textSPDB;
 	private JPanel pnlBieuDo;
 	private ChartPanel chartPanel;
+	
+	DecimalFormat tien = new DecimalFormat("#,##0");
+	private JButton btnInThongKe;
+	String hinhThucThongKe;
+	
+	FrmInThongKe frmInTK = new FrmInThongKe();
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -144,8 +154,8 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		pnlThongTinThongKe.add(textHHDL);
 		textHHDL.setEditable(false);
 		textHHDL.setBackground(new Color(255, 255, 255));
-		textHHDL.setHorizontalAlignment(SwingConstants.CENTER);
-		textHHDL.setForeground(Color.RED);
+		textHHDL.setHorizontalAlignment(SwingConstants.LEFT);
+		textHHDL.setForeground(new Color(0, 0, 0));
 		textHHDL.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		textHHDL.setColumns(10);
 		textHHDL.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -160,8 +170,8 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		textSPDB.setBounds(212, 118, 133, 24);
 		pnlThongTinThongKe.add(textSPDB);
 		textSPDB.setEditable(false);
-		textSPDB.setHorizontalAlignment(SwingConstants.CENTER);
-		textSPDB.setForeground(Color.RED);
+		textSPDB.setHorizontalAlignment(SwingConstants.LEFT);
+		textSPDB.setForeground(new Color(0, 0, 0));
 		textSPDB.setFont(new Font("Times New Roman", Font.BOLD, 14));
 		textSPDB.setColumns(10);
 		textSPDB.setBorder(new LineBorder(new Color(0, 0, 0)));
@@ -254,13 +264,20 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		pnTable.setLayout(null);
 		
 		JScrollPane scrDSHD;
-		String[] tb1 = new String[] {"STT","Mã Sản Phẩm","Tên sản phẩm","Loại","Số lượng","Ngày nhập","Giá nhập","Giá bán", "Màu sắc", "Size", "Số lượng bán"};
-		tablemodel = new DefaultTableModel(tb1, 0);
-		table_DSSP = new JTable(tablemodel);
+		table_DSSP = bangThongKe(tablemodel);
 
 		table_DSSP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		table_DSSP.setBackground(new Color(224, 255, 255));
 		table_DSSP.setForeground(new Color(0, 0, 0));
+		table_DSSP.getColumnModel().getColumn(0).setPreferredWidth(40);
+		table_DSSP.getColumnModel().getColumn(1).setPreferredWidth(40);
+		table_DSSP.getColumnModel().getColumn(2).setPreferredWidth(140);
+		table_DSSP.getColumnModel().getColumn(3).setPreferredWidth(80);
+		table_DSSP.getColumnModel().getColumn(4).setPreferredWidth(50);
+		table_DSSP.getColumnModel().getColumn(5).setPreferredWidth(50);
+		table_DSSP.getColumnModel().getColumn(6).setPreferredWidth(80);
+		table_DSSP.getColumnModel().getColumn(8).setPreferredWidth(40);
+
 		getContentPane().add(scrDSHD=new JScrollPane(table_DSSP,ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS),BorderLayout.CENTER);
 		scrDSHD.setBounds(10, 21, 1262, 291);
 		pnTable.add(scrDSHD);
@@ -268,7 +285,7 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		
 		btnXem = new JButton("Xem báo cáo");
 		btnXem.setIcon(new ImageIcon("Anh\\xembaocao.png"));
-		btnXem.setBounds(570, 745, 188, 50);
+		btnXem.setBounds(660, 745, 188, 50);
 		btnXem.setFont(new Font("Tahoma", Font.BOLD, 16));
 		btnXem.setBackground(new Color(0, 255, 255));
 		pnlThongTin.add(btnXem);
@@ -284,11 +301,11 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		pnlTieuDe.add(lblTieuDeTrang);
 		lblTieuDeTrang.setHorizontalAlignment(SwingConstants.CENTER);
 		lblTieuDeTrang.setFont(new Font("Tahoma", Font.BOLD | Font.ITALIC, 20));
-		btnXem.addActionListener(this);
+		
 		
 		pnlBieuDo = new JPanel();
 		javax.swing.border.Border borderBieuDo = BorderFactory.createLineBorder(Color.black);
-		TitledBorder borderBieuDo2 =new TitledBorder(borderBieuDo,"Top nhân viên");
+		TitledBorder borderBieuDo2 =new TitledBorder(borderBieuDo,"Top sản phẩm");
 		borderBieuDo2.setTitleColor(Color.black);
 		pnlBieuDo.setBorder(borderBieuDo2);
 		pnlBieuDo.setLayout(null);
@@ -313,6 +330,17 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		gr.add(rdQuaLau);
 		gr.add(rdSapHet);
 		gr.add(rdMoiNhap);
+		
+		btnInThongKe = new JButton("In báo cao");
+		btnInThongKe.setFont(new Font("Tahoma", Font.BOLD, 16));
+		btnInThongKe.setBackground(Color.CYAN);
+		btnInThongKe.setBounds(462, 745, 188, 50);
+		pnlThongTin.add(btnInThongKe);
+		
+		btnXem.addActionListener(this);
+		btnInThongKe.addActionListener(this);
+		btnInThongKe.setEnabled(false);
+		
 	}
 	public void docDuLieuHetHang() {
 		int d=1;
@@ -327,6 +355,7 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Không có sản phẩm nào hết hàng.");
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
@@ -335,13 +364,15 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 			for(ThongKeSanPham x:list) {
 			soLuongLoaiSP = x.getLoai();
 			lsp.add(soLuongLoaiSP);
-			System.out.println(lsp);
+			
 			tongSanPham++;	
 				tablemodel.addRow(new Object[] {
-						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(),x.getGiaNhap(), x.getGiaBan(), x.getMauSac(), x.getKichThuoc()
+						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(), tien.format(x.getGiaNhap()),  tien.format(x.getGiaBan()), x.getMauSac(), x.getKichThuoc()
 					});
 			}
 			int soLuongLoai = lsp.size();
+			hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM ĐÃ HẾT HÀNG";
+			btnInThongKe.setEnabled(true);
 			textSPDB.setText(String.valueOf(soLuongLoai));
 			textHHDL.setText(String.valueOf(tongSanPham));
 			lblTSP.setText("Tổng sản phẩm:");
@@ -355,12 +386,15 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Tất cả sản phẩm đều hết.");
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
 		else 
 		{
 		layDS(list);
+		hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM CÒN HÀNG";
+		btnInThongKe.setEnabled(true);
 		}
 	}
 	
@@ -370,12 +404,15 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Tất cả sản phẩm đều trong tình trạng tốt.");
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
 		else 
 		{
 		layDS(list);
+		hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM SẮP HẾT HÀNG";
+		btnInThongKe.setEnabled(true);
 		}
 	}
 //	Tìm theo sản phẩm bán ế
@@ -385,12 +422,15 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Tất cả sản phẩm đều trong tình trạng tốt.");
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
 		else 
 		{
 		layDS(list);
+		hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM TỒN KHO QUÁ LÂU";
+		btnInThongKe.setEnabled(true);
 		}
 	}
 //	Tìm theo sản phẩm mới nhập theo ngày
@@ -401,16 +441,28 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		java.util.Date ngayNhap1 = dateFormat.parse(ngayNhap);
 		Date ngayNhapsql = new Date(ngayNhap1.getTime());
 		
+		int day;
+		int month;
+		int year;
+		Calendar ngayCld = Calendar.getInstance();
+		ngayCld.setTime(txtChonNgay.getDate());
+		day = ngayCld.get(Calendar.DATE);
+		month = ngayCld.get(Calendar.MONTH) + 1;
+		year = ngayCld.get(Calendar.YEAR);
+		hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM MỚI NHẬP NGÀY "+day + " THÁNG " + month + " NĂM " + year; 
+		
 		List<ThongKeSanPham> list = dao.getNewAdd(ngayNhapsql);
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Không có sản phẩm nào được nhập vào ngày " + ngayNhap);
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
 		else 
 		{
 		layDS(list);
+		btnInThongKe.setEnabled(true);
 		}
 	}
 	public double tinhGiaBan(double giaNhap)
@@ -475,6 +527,10 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 				}
 			}
 		}
+		else if (o.equals(btnInThongKe))
+		{
+			inThongKe();
+		}
 	}
 //	lấy danh sách các sản phẩm còn hàng, sắp hết, mới nhập
 	public void layDS(List<ThongKeSanPham> list)
@@ -492,10 +548,10 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 			
 			soLuongLoaiSP = x.getLoai();
 			lsp.add(soLuongLoaiSP);
-			System.out.println(lsp);
+			
 			tongSanPham += x.getSoLuongNhap();	
 				tablemodel.addRow(new Object[] {
-						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(),x.getGiaNhap(), x.getGiaBan(), x.getMauSac(), x.getKichThuoc()
+						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(), tien.format(x.getGiaNhap()),  tien.format(x.getGiaBan()), x.getMauSac(), x.getKichThuoc()
 					});
 		}
 		int soLuongLoai = lsp.size();
@@ -524,7 +580,6 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		
 		
 		List<ThongKeSanPham> list = dao.getSold(day, month, year);
-		System.out.println(list);
 		String soLuongLoaiSP;
 		HashSet<String> lsp = new HashSet<>();
 		
@@ -532,9 +587,13 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		int tongSanPham = 0;
 		int tongLoai = 0;
 		
+		
+		hinhThucThongKe = "THỐNG KÊ NHỮNG SẢN PHẨM ĐƯỢC BÁN VÀO NGÀY "+day + " THÁNG " + month + " NĂM " + year; 
+		
 		if (list == null || list.isEmpty())
 		{
 			JOptionPane.showMessageDialog(this, "Không có sản phẩm nào được bán vào ngày " + ngayBan);
+			btnInThongKe.setEnabled(false);
 			textSPDB.setText(String.valueOf(0));
 			textHHDL.setText(String.valueOf(0));
 		}
@@ -543,14 +602,14 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 			for(ThongKeSanPham x:list) {
 			soLuongLoaiSP = x.getLoai();
 			lsp.add(soLuongLoaiSP);
-			System.out.println(lsp);
 			int soLuongBan = dao.soLuongBan(x.getMaSP());	
 			tongSanPham += soLuongBan;
 				tablemodel.addRow(new Object[] {
-						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(),x.getGiaNhap(), x.getGiaBan(), x.getMauSac(), x.getKichThuoc(), soLuongBan
+						d++, x.getMaSP(), x.getTenSP(), x.getLoai(), x.getSoLuongNhap(), x.getNgayNhap(), tien.format(x.getGiaNhap()),  tien.format(x.getGiaBan()), x.getMauSac(), x.getKichThuoc(), soLuongBan
 					});
 			}
 			int soLuongLoai = lsp.size();
+			btnInThongKe.setEnabled(true);
 			textSPDB.setText(String.valueOf(soLuongLoai));
 			textHHDL.setText(String.valueOf(tongSanPham));
 			lblTSP.setText("Tổng số lượng sản phẩm:");
@@ -581,23 +640,32 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
                 "TOP SẢN PHẨM BÁN CHẠY NHẤT TRONG THÁNG",
                 null, null,
                 createDataset(), PlotOrientation.VERTICAL, false, false, false);
-		
+			TextTitle title = new TextTitle( "TOP SẢN PHẨM BÁN CHẠY NHẤT TRONG THÁNG");
+	        title.setFont(new Font("Times New Roman", Font.BOLD, 20));
+	        barChart.setTitle(title);
 			CategoryPlot plot = (CategoryPlot) barChart.getPlot();
 			BarRenderer renderer = (BarRenderer) plot.getRenderer();
 			
 			// Tùy chỉnh trục x (CategoryAxis)
 	        CategoryAxis xAxis = plot.getDomainAxis();
 	        xAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 13));
+	        xAxis.setTickLabelPaint(Color.BLACK);
+	        xAxis.setMaximumCategoryLabelLines(2);
 
 	        // Tùy chỉnh trục y (NumberAxis)
 	        NumberAxis yAxis = (NumberAxis) plot.getRangeAxis();
 	        yAxis.setTickLabelFont(new Font("Times New Roman", Font.PLAIN, 13));
 	        yAxis.setLabel("Số tiền (triệu VNĐ)");
-	        
+	        yAxis.setTickLabelPaint(Color.BLACK);
+	        yAxis.setAxisLinePaint(Color.BLACK);
 	        
 			renderer.setSeriesPaint(0, new Color(52, 155, 235));
 			renderer.setBarPainter(new StandardBarPainter());
 			renderer.setMaximumBarWidth(0.05);  
+			
+			plot.getRangeAxis().setLowerMargin(0.2);
+			plot.getRangeAxis().setUpperMargin(0.2);
+			
 			plot.setBackgroundPaint(new Color(223, 229, 235));
 			return barChart;
 	}
@@ -606,10 +674,10 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 	        for (int i = 1; i<= 5; i++)
 	        {
 	        	double tongHoaDon = dao.tongTienBan(i);
-	        	String nhanVienTop = dao.sanPhamTop(i);
+	        	String sanPhamTops = dao.sanPhamTop(i);
 	        	if (tongHoaDon != 0)
 	        	{
-	        		dataset.addValue(tongHoaDon/1000000, "Số tiền", nhanVienTop);
+	        		dataset.addValue(tongHoaDon/1000000, "Số tiền", sanPhamTops + "\n" + tien.format(tongHoaDon));
 	        	}
 	        }    
 	        return dataset;
@@ -618,4 +686,49 @@ public class FrmThongKeTinhTrangSP extends JFrame implements ActionListener{
 		    chartPanel.setChart(bieuDo());
 		    chartPanel.repaint();
 		}
+	 public JTable bangThongKe (DefaultTableModel model)
+	 {
+		
+		 
+		 String[] tb = new String[] {"STT","Mã","Tên sản phẩm","Loại","Số lượng","Ngày nhập","Giá nhập","Giá bán", "Màu sắc", "Size", "SL bán"};
+
+			model = new DefaultTableModel(tb,0);
+			JTable table_DSSP = new JTable(model);
+			table_DSSP.setBackground(Color.WHITE);
+			table_DSSP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
+			table_DSSP.setBackground(new Color(224, 255, 255));
+			table_DSSP.setForeground(new Color(0, 0, 0));
+			
+			return table_DSSP;
+	 }
+	 public void inThongKe()
+	 {
+		
+		 String lbl1 = lblTSP.getText();
+		 String lbl2 = lblTL.getText();
+		 String lbl3 = "";
+		 String lbl4 =  "";
+		 String lbl5 =  "";
+		 String lbl6 =  "";
+		 String tongLoai = textSPDB.getText();
+		 String tongSanPham = textHHDL.getText();
+		 String tienLoi =  "";
+		 String tienSP = "";
+		 String tienGiam =  "";
+		 frmInTK.setVisible(true);
+		 frmInTK.setDuLieuThongKe(lbl1, lbl2, lbl3, lbl4, lbl5, lbl6, tongSanPham, tongLoai, tienLoi, tienSP, tienGiam, "");
+		 
+		 frmInTK.taoBangThongKe(bangThongKe(tablemodel), 3);
+		 frmInTK.xoaAllDataTable();
+		 frmInTK.capNhatBangThongKe(tablemodel);
+		 frmInTK.tieuDe(hinhThucThongKe);
+		 Date currentDate = new Date();
+
+	        // Định dạng ngày
+	        SimpleDateFormat dateFormat = new SimpleDateFormat("'(Thống kê được in vào ngày' d 'tháng' M 'năm' y)");
+	        String formattedDate = dateFormat.format(currentDate);
+	        frmInTK.ngayIn(formattedDate);
+		 frmInTK.printThongKe();
+		 
+	 }
 }
