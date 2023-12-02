@@ -221,65 +221,51 @@ public class SanPham_Dao {
 	 * Sua sản phẩm trong cơ sở dữ liệu
 	 */
 	public boolean sua(String tenSP, String nhaCungCap, String km, double giaBan, int soluong, Date ngayNhap,
-			String hinhAnh, String color, String size, String chatLieu, int tinhTrang, String dvt, String loaiSP,
-			int VAT, double giaBanRa, String maSP) {
-		Connection con = ConnectDatabase.getInstance().getConnection();
-		PreparedStatement stmt = null;
-		int n = 0;
-		
-		try {
-			if (km.equalsIgnoreCase("none") || km.equalsIgnoreCase(""))
-			{
-				
-				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, Gianhap = ?, Soluong = ?, Ngaynhap = ?, KhuyenMai = null, Hinhanh = ?, MauSac = ?, Size = ?, ChatLieu = ?, "
-						+ "TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?,VAT = ?, giaBan = ? WHERE maSp = ?";
-				stmt = con.prepareStatement(sql);
-				stmt.setString(1, tenSP);
-				stmt.setString(2, nhaCungCap);
-				stmt.setDouble(3, giaBan);
-				stmt.setInt(4, soluong);
-				stmt.setDate(5, ngayNhap);
-				stmt.setString(6, hinhAnh);
-				stmt.setString(7, color);
-				stmt.setString(8, size);
-				stmt.setString(9, chatLieu);
-				stmt.setInt(10, tinhTrang);
-				stmt.setString(11, dvt);
-				stmt.setString(12, loaiSP);
-				stmt.setFloat(13, VAT);
-				stmt.setDouble(14, giaBanRa);
-				stmt.setString(15, maSP);
-				
-				n = stmt.executeUpdate();
-			}
-			else {
-				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?,KhuyenMai = ?, Gianhap = ?, Soluong = ?, Ngaynhap = ?, Hinhanh = ?, MauSac = ?, Size = ?, ChatLieu = ?, "
-						+ "TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?,VAT = ?, giaBan = ? WHERE maSp = ?";
-				stmt = con.prepareStatement(sql);
-				stmt.setString(1, maSP);
-				stmt.setString(2, tenSP);
-				stmt.setString(3, nhaCungCap);;
-				stmt.setDouble(4, giaBan);
-				stmt.setInt(5, soluong);
-				stmt.setDate(6, ngayNhap);
-				stmt.setString(7, hinhAnh);
-				stmt.setString(8, color);
-				stmt.setString(9, size);
-				stmt.setString(10, chatLieu);
-				stmt.setInt(11, tinhTrang);
-				stmt.setString(12, dvt);
-				stmt.setString(13, loaiSP);
-				stmt.setInt(14, VAT);
-				stmt.setDouble(15, giaBanRa);
-				n = stmt.executeUpdate();
-				
-				
-			}
-		} catch (Exception e) {
-			e.printStackTrace(); // In lỗi ra màn hình console để theo dõi và xử lý lỗi.
-		}
-		return n > 0;
+	        String hinhAnh, String color, String size, String chatLieu, int tinhTrang, String dvt, String loaiSP,
+	        int VAT, double giaBanRa, String maSP) {
+	    Connection con = ConnectDatabase.getInstance().getConnection();
+	    PreparedStatement stmt = null;
+	    int n = 0;
+
+	    try {
+	        if (km.equalsIgnoreCase("none") || km.equalsIgnoreCase("")) {
+	            String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, Gianhap = ?, Soluong = ?, Ngaynhap = ?, KhuyenMai = null, Hinhanh = ?, MauSac = ?, Size = ?, ChatLieu = ?, "
+	                    + "TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?, VAT = ?, giaBan = ? WHERE maSp = ?";
+	            stmt = con.prepareStatement(sql);
+	            stmt.setString(1, tenSP);
+	            stmt.setString(2, nhaCungCap);
+	            stmt.setDouble(3, giaBan);
+	            stmt.setInt(4, soluong);
+	            if (soluong != 0) {
+	                stmt.setDate(5,ngayNhap = new java.sql.Date(System.currentTimeMillis()));
+	            } else {
+	                stmt.setDate(5, ngayNhap);
+	            }
+	            // Remaining code...
+	        } else {
+	            String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, Gianhap = ?, Soluong = ?, Ngaynhap = ?, Hinhanh = ?, MauSac = ?, Size = ?, ChatLieu = ?, "
+	                    + "TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?, VAT = ?, giaBan = ? WHERE maSp = ?";
+	            stmt = con.prepareStatement(sql);
+	            stmt.setString(1, tenSP);
+	            stmt.setString(2, nhaCungCap);
+	            // stmt.setString(3, km);
+	            stmt.setDouble(3, giaBan);
+	            stmt.setInt(4, soluong);
+	            if (soluong != 0) {
+	                stmt.setDate(5,ngayNhap = new java.sql.Date(System.currentTimeMillis()));
+	            } else {
+	                stmt.setDate(5, ngayNhap);
+	            }
+	            // Remaining code...
+	        }
+	    } catch (Exception e) {
+	        e.printStackTrace(); // In lỗi ra màn hình console để theo dõi và xử lý lỗi.
+	    }
+	    return n > 0;
 	}
+
+
+
 
 	public boolean suaKhongAnh(String tenSP, String nhaCungCap, String km, double giaBan, int soluong, Date ngayNhap,
 			String color, String size, String chatLieu, int tinhTrang, String dvt, String loaiSP, int VAT,
@@ -290,7 +276,7 @@ public class SanPham_Dao {
 		try {
 			if (km.equalsIgnoreCase("none") || km.equalsIgnoreCase(""))
 			{
-				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, Gianhap = ?, Soluong = ?, KhuyenMai = null, "
+				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, Gianhap = ?, Soluong = ?, "
 						+ "Ngaynhap = ?, MauSac = ?, Size = ?, ChatLieu = ?, "
 						+ "TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?,VAT = ?, giaBan = ? "
 						+ "WHERE maSp = ?";
@@ -299,7 +285,12 @@ public class SanPham_Dao {
 				stmt.setString(2, nhaCungCap);
 				stmt.setDouble(3, giaBan);
 				stmt.setInt(4, soluong);
-				stmt.setDate(5, ngayNhap);
+				 if (soluong != 0) {
+		                stmt.setDate(5,ngayNhap = new java.sql.Date(System.currentTimeMillis()));
+		            } else {
+		                stmt.setDate(5, ngayNhap);
+		            }
+				
 
 				stmt.setString(6, color);
 				stmt.setString(7, size);
@@ -314,26 +305,30 @@ public class SanPham_Dao {
 				n = stmt.executeUpdate();
 			}else {
 				
-				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?,KhuyenMai = ?, "
+				String sql = "UPDATE SanPham SET Tensp = ?, NhaCungCap = ?, "
 						+ "Gianhap = ?, Soluong = ?, Ngaynhap = ?,  MauSac = ?, Size = ?, "
 						+ "ChatLieu = ?, TinhTrang = ?, DonViTinh = ?, LoaiSanPham = ?,"
 						+ "VAT = ?, giaBan = ? WHERE maSp = ?";
 				stmt = con.prepareStatement(sql);
 				stmt.setString(1, tenSP);
 				stmt.setString(2, nhaCungCap);
-				stmt.setString(3, km);
-				stmt.setDouble(4, giaBan);
-				stmt.setInt(5, soluong);
-				stmt.setDate(6, ngayNhap);
-				stmt.setString(7, color);
-				stmt.setString(8, size);
-				stmt.setString(9, chatLieu);
-				stmt.setInt(10, tinhTrang);
-				stmt.setString(11, dvt);
-				stmt.setString(12, loaiSP);
-				stmt.setFloat(13, VAT);
-				stmt.setDouble(14, giaBanRa);
-				stmt.setString(15, maSP);			
+//				stmt.setString(3, km);
+				stmt.setDouble(3, giaBan);
+				stmt.setInt(4, soluong);
+				 if (soluong != 0) {
+		                stmt.setDate(5,ngayNhap = new java.sql.Date(System.currentTimeMillis()));
+		            } else {
+		                stmt.setDate(5, ngayNhap);
+		            }
+				stmt.setString(6, color);
+				stmt.setString(7, size);
+				stmt.setString(8, chatLieu);
+				stmt.setInt(9, tinhTrang);
+				stmt.setString(10, dvt);
+				stmt.setString(11, loaiSP);
+				stmt.setFloat(12, VAT);
+				stmt.setDouble(13, giaBanRa);
+				stmt.setString(14, maSP);			
 				n = stmt.executeUpdate();
 				
 				

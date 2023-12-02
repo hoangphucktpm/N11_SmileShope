@@ -172,6 +172,18 @@ public class KhachHang_Dao {
 		}
 		return result;
 	}	
+	public void updateLoaiKH() {
+	    try {
+	        Connection con = ConnectDatabase.getInstance().getConnection();
+	        String sql = "update KhachHang set LoaiKH = 2 where diemTichLuy >= 50000";
+	        PreparedStatement preStm = con.prepareStatement(sql);
+	        preStm.executeUpdate();
+	        
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}	
+	
 	public KhachHang getMa(String MaKHang) {
 		KhachHang list = new KhachHang();
 

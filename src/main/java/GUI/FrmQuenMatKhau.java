@@ -16,14 +16,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import java.awt.Font;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.JRadioButton;
 import javax.swing.JButton;
+import javax.swing.JDialog;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.UIManager;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
 public class FrmQuenMatKhau extends JFrame implements ActionListener{
@@ -97,15 +103,17 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 		lblMail.setBounds(449, 140, 160, 35);
 		contentPane.add(lblMail);
 		
-		btnQuenMK = new JButton("Cấp lại mật khẩu");
+		AbstractAction actionQMK = new AbstractAction("Cấp lại mật khẩu") {
+		    public void actionPerformed(ActionEvent e) {
+		    }
+		};
+
+		btnQuenMK = new JButton(actionQMK);
 		btnQuenMK.setIcon(new ImageIcon("Anh\\door_1828377.png"));
 		btnQuenMK.setBackground(Color.GREEN);
 		btnQuenMK.setBackground(new Color(0, 255, 0));
 		btnQuenMK.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		btnQuenMK.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
+		getRootPane().setDefaultButton(btnQuenMK);
 		btnQuenMK.setBounds(449, 248, 268, 35);
 		contentPane.add(btnQuenMK);
 		
@@ -130,29 +138,62 @@ public class FrmQuenMatKhau extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		Object o = e.getSource();
-		 if(o.equals(btnQuenMK)) {
-			 if(valiData() == true)
-			 if (sendMail.sendMail(email, user, newPass) == true)
-			 {
-				 JOptionPane.showMessageDialog(null, "Thay đổi mật khẩu thành công. hãy kiểm tra Email của bạn.");
-				 dao.suaMK(newPass, user);
-				 FrmDangNhap frmDangNhap = new FrmDangNhap();
-			        frmDangNhap.setVisible(true);
-			        frmDangNhap.setLocationRelativeTo(null);
-			        this.setVisible(false);
-			 } else
-			 {
-				 JOptionPane.showMessageDialog(null, "Lỗi");
-			 }
+	    Object o = e.getSource();
+	    if (o.equals(btnQuenMK)) {
+	        if (valiData()) {
+	            JDialog loadingDialog = new JDialog();
+	            loadingDialog.setTitle("Vui lòng chờ...");
+	            loadingDialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+	            loadingDialog.setSize(500, 60);
+	            loadingDialog.setLayout(new BorderLayout());
+	            loadingDialog.setLocationRelativeTo(null);
 
-		}
+	            JProgressBar progressBar = new JProgressBar();
+	            progressBar.setMinimum(1);
+	            progressBar.setMaximum(100);
+	            progressBar.setStringPainted(true);
+	            progressBar.setForeground(Color.RED); 
+	            loadingDialog.add(progressBar, BorderLayout.CENTER);
+
+	            new Thread(() -> {
+	                for (int i = 1; i <= 100; i++) {
+	                    try {
+	                        Thread.sleep(70);
+	                    } catch (InterruptedException ex) {
+	                        ex.printStackTrace();
+	                    }
+	                    final int progress = i;
+	                    SwingUtilities.invokeLater(() -> {
+	                        progressBar.setValue(progress);
+	                        progressBar.setString(progress + "%");
+	                    });
+	                }
+
+	                boolean emailSent = sendMail.sendMail(email, user, newPass);
+
+	                SwingUtilities.invokeLater(() -> {
+	                    loadingDialog.dispose();
+	                    if (emailSent) {
+	                        dao.suaMK(newPass, user);
+	                        FrmDangNhap frmDangNhap = new FrmDangNhap();
+	                        frmDangNhap.setVisible(true);
+	                        frmDangNhap.setLocationRelativeTo(null);
+	                        setVisible(false);
+	                        JOptionPane.showMessageDialog(null, "Thay đổi mật khẩu thành công. Hãy kiểm tra Email của bạn.");
+	                    } else {
+	                        JOptionPane.showMessageDialog(null, "Lỗi khi gửi Email.");
+	                    }
+	                });
+	            }).start();
+
+	            loadingDialog.setVisible(true); 
+	        }
+
 		 else if(o.equals(btnQuayLai)) {
 			 FrmDangNhap frmDangNhap = new FrmDangNhap();
 			 frmDangNhap.setVisible(true);
 		     this.setVisible(false);
-		 }
+		 }}
 	}
 	public boolean valiData() {
 	   

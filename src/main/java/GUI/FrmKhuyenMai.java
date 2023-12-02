@@ -33,6 +33,8 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 
 import com.toedter.calendar.JDateChooser;
@@ -126,14 +128,14 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 	private JButton btnTimKiem;
 	private String trangThaiText;
 	
-	private String spAp = "";
-	private int soLuongAp = 0;
 	boolean lock = false;
 	boolean chkThem = false;
 	boolean chkSua = false;
 	private SanPham_Dao daoSP = new SanPham_Dao();
 	private JButton btnLamMoiTimKiem;
 	private JButton btnLuu;
+	
+	private List<String> selectedRowsValues = new ArrayList<>();
 	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -284,11 +286,12 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 				if(e.getSource() == chkApAll) {
 					if(chkApAll.isSelected()) {
 						 for (int i = 0; i < table_SP.getRowCount(); i++) {
-		            		 
-			                 kmDao.adDSPKM(table_SP.getValueAt(i, 0).toString(), txtMaKM.getText());
+							KhuyenMai km = kmDao.getKMTHeoMa(table_SP.getValueAt(i, 0).toString());
+			                if(km != null) {
+			                	 kmDao.adDSPKM(table_SP.getValueAt(i, 0).toString(), txtMaKM.getText());
+			                }
 		            	    }
 		            	 docDuLieuSP() ;
-		            	 soLuongAp = 0;
 					}
 				}
 			}
@@ -316,14 +319,12 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 		panel_DSSP.add(cbbTimKiemSP);
 		
 		JScrollPane scrDSSP;
-		table_SP = new JTable(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-					"Mã sản phẩm","Tên sản phẩm","Chọn"
-			}
-		));
-		
+		String[] head = new String[] {
+				"Mã sản phẩm","Tên sản phẩm","Chọn"
+		};
+		tablemodel = new DefaultTableModel(head, 0);
+		table_SP = new JTable(tablemodel);
+		table_SP.setEnabled(false) ;
 
 		table_SP.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		table_SP.setBackground(new Color(204, 255, 255));
@@ -487,7 +488,6 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 		cbbTimKiemSP.setEnabled(false);
 		txtChonNgayKT.getCalendarButton().setEnabled(false);
 		txtChonNgayBD.getCalendarButton().setEnabled(false);
-		chkApAll.setEnabled(false);
 		rdApDung.setEnabled(false);
 		rdHetHan.setEnabled(false);
 
@@ -564,8 +564,18 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 		    
 		    
 		});
+		
 		docDuLieuSP();
 		flag = 1;
+		table_SP.getSelectionModel().addListSelectionListener((ListSelectionListener) new ListSelectionListener() {
+		    @Override
+		    public void valueChanged(ListSelectionEvent e) {
+		        if (e.getValueIsAdjusting()) {
+		            return; // Bỏ qua các sự kiện không phải từ người dùng
+		        }
+		       checkedBox();
+		    }
+		});
 	}
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -582,6 +592,7 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 				btnThem.setText("Thêm");
 				btnThem.setIcon(new ImageIcon("Anh\\them.png"));
 				btnSua.setEnabled(true);
+				docDuLieuSP();
 			}
 		}
 		else if (o.equals(btnLamMoiCT))
@@ -636,6 +647,7 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
        btnSua.setIcon(new ImageIcon("Anh\\huy.png"));
        btnSua.setText("Hủy");
        btnThem.setEnabled(false);
+       docDuLieuSP();
     }
 //Cho phép thêm khuyến mãi
 	private void themKM()
@@ -646,6 +658,9 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 	    btnThem.setText("Hủy");
 	    btnThem.setIcon(new ImageIcon("Anh\\huy.png"));
 	    btnSua.setEnabled(false);
+	    selectedRowsValues.clear();
+	    xoaSanPhamApDung();
+	    
 	}
 // Xóa trắng thông tin
 	private void xoaTrang(){
@@ -713,45 +728,49 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 				trangThai = false;
 			}
 			int phanTramText = (int) cboPhanTram.getSelectedItem();
-			int soluong = 0;
+			int soluong = selectedRowsValues.size();
 			KhuyenMai km = valiData();
 			if(km == null)
 				return;
 			else
 			{
-				if(chkThem == true)
+				if(chkThem == true && chkSua == false)
 				{
 					  try {
-			            	 if (soLuongAp == 1)
-			                    {
 			                boolean kmmoi = kmDao.themKhuyenMai(tenkm, phanTramText, ngaybdsql, ngayktsql, stat, soluong);
 			                if (kmmoi == true) {
 			                    xoaTrang();
 			                    deleteAllDataTable();
+//			                    add sản phẩm khuyến mãi
+			                    for (String maSPAP : selectedRowsValues)
+			                    {
+			                    	kmDao.adDSPKM(maSPAP, maKM);
+			                    	System.out.println(maSPAP);
+			                    }
+			                    
 			                    docDuLieu();
 			                    txtMaKM.setText(deFaultID());
 			                    
-//			                    add sản phẩm khuyến mãi
-			                  
-			                    kmDao.adDSPKM(spAp, maKM);
+		                  
 			                    JOptionPane.showMessageDialog(this, "Thêm chương trình khuyến mãi thành công!");
 			                } else {
 			                    JOptionPane.showMessageDialog(this, "Thêm chương trình khuyến mãi không thành công!");
 			                }
-			                    }
-			                    else
-			                    {
-			                    	 soLuongAp = 0;
-			                    }
-			                    	
 			            } catch (Exception e) {
 			                e.printStackTrace();
 			            }
-				}else if (chkSua == true)
+				}else if (chkSua == true && chkThem == false)
 				{
 					 if (km != null) {
 				            KhuyenMai_Dao kmDao = new KhuyenMai_Dao();
-				            boolean kmmoi = kmDao.updateKhuyenMai(tenkm, phanTramText, ngaybdsql, ngayktsql, stat, 100, maKM);
+				            kmDao.capNhatNull(maKM);
+				            for (String maSPAP : selectedRowsValues)
+		                    {
+		                    	kmDao.adDSPKM(maSPAP, maKM);
+		                    	System.out.println(maSPAP);
+		                    }
+				            boolean kmmoi = kmDao.updateKhuyenMai(tenkm, phanTramText, ngaybdsql, ngayktsql, stat, selectedRowsValues.size(), maKM);
+				           
 				            if (kmmoi) {
 				                xoaTrang();
 				                deleteAllDataTable();
@@ -808,7 +827,7 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
  // Đọc dữ liệu lên
     public void docDuLieu(){
         List<KhuyenMai> list = kmDao.getAllKhuyenMai();
-        DefaultTableModel tablemodel1 = (DefaultTableModel) tableThongTinKM.getModel();
+        tablemodel1 = (DefaultTableModel) tableThongTinKM.getModel();
         DefaultComboBoxModel<Integer> cboModelPhanTram = new DefaultComboBoxModel<>();
         cboPhanTram.setModel(cboModelPhanTram);
 
@@ -840,90 +859,49 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
     public void docDuLieuSP() {
         List<sanPham> list = daoSP.getAllSP();
         JCheckBox chkADD = new JCheckBox();
-        final DefaultTableModel tablemodel = (DefaultTableModel) table_SP.getModel();
         tablemodel.setRowCount(0);
         for (sanPham x : list) {
         	cbbTimKiemSP.addItem(x.getMaSP());
         	table_SP.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(new JCheckBox()));
         	table_SP.getColumnModel().getColumn(2).setCellRenderer(table_SP.getDefaultRenderer(Boolean.class));
         	 
-       	boolean isChecked = false;
        	tablemodel.addRow(new Object[] {
                x.getMaSP(), x.getTenSP(), x.getKhuyenMai().getMaKhuyenMai() == null ? false: true
             });
         }
-        table_SP.getSelectionModel().addListSelectionListener((ListSelectionListener) new ListSelectionListener() {
-	        @Override
-	        public void valueChanged(ListSelectionEvent e) {
-	            if (e.getValueIsAdjusting()) {
-	                return; // Bỏ qua các sự kiện không phải từ người dùng
-	            }
-	            
-	            int selectedRow = table_SP.getSelectedRow();
-	            int columnIndex = 2; // Chỉ mục cột 2, có thể thay đổi theo cột của bạn
-	          
-	            if (selectedRow != -1 && table_SP.getSelectedColumn() == columnIndex) {
-	                // Lấy giá trị của ô checkbox
-	            	 boolean isChecked = (boolean) tablemodel.getValueAt(selectedRow, columnIndex);
+        autoCheck();
 
-	                 if (isChecked) {
-	                     soLuongAp++;
-	                     spAp = (String) tablemodel.getValueAt(selectedRow, 0);// Tăng biến soLuongAp khi ô checkbox được kiểm tra
-	                 } else {
-	                     soLuongAp--; // Giảm biến soLuongAp khi ô checkbox được bỏ kiểm tra
-	                 }
-	                 
-	                 docDuLieuSPByMaKM(txtMaKM.getText());
-	             }
-	        }
-	    });
     }
  // Đọc dữ liệu sản phẩm 
     public void docDuLieuSPByMaKM(String makm) {
     	flag = 0;
         List<sanPham> list = daoSP.getAllSP();
        
-        final DefaultTableModel tablemodel = (DefaultTableModel) table_SP.getModel();
         tablemodel.setRowCount(0);
         for (sanPham x : list) {
 //        	cbbTimKiemSP.addItem(x.getMaSP());
        	table_SP.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(new JCheckBox()));
        	table_SP.getColumnModel().getColumn(2).setCellRenderer(table_SP.getDefaultRenderer(Boolean.class));
-        	 
-       	boolean isChecked = false;
-       
+        
        	tablemodel.addRow(new Object[] {
-               x.getMaSP(), x.getTenSP(),x.getKhuyenMai().getMaKhuyenMai() != null && x.getKhuyenMai().getMaKhuyenMai().equals(makm) ? true: false
+               x.getMaSP(), x.getTenSP(),x.getKhuyenMai().getMaKhuyenMai() != null && kmDao.layKhuyenMaiTuSanPham(x.getMaSP()).equals(makm) ? true: false
             });
         }
-        table_SP.getSelectionModel().addListSelectionListener((ListSelectionListener) new ListSelectionListener() {
-	        @Override
-	        public void valueChanged(ListSelectionEvent e) {
-	            if (e.getValueIsAdjusting()) {
-	                return; 
-	            }
-	            
-	            int selectedRow = table_SP.getSelectedRow();
-	            int columnIndex = 2; 
-	            
-	            if (selectedRow != -1 && table_SP.getSelectedColumn() == columnIndex) {
-	              
-	            	 boolean isChecked = (boolean) tablemodel.getValueAt(selectedRow, columnIndex);
-
-	                 if (isChecked) {
-	                     soLuongAp++;
-	                     spAp = (String) tablemodel.getValueAt(selectedRow, 0);// Tăng biến soLuongAp khi ô checkbox được kiểm tra
-	                 } else {
-	                     soLuongAp--; // Giảm biến soLuongAp khi ô checkbox được bỏ kiểm tra
-	                 }
-	                 
-	               
-	                 kmDao.adDSPKM(tablemodel.getValueAt(selectedRow, 0).toString(), txtMaKM.getText().equals("") ? null: txtMaKM.getText());
-	             
-	             }
-	        }
-	    });
         flag = 1;
+    }
+//    tự động click mã
+    public void autoCheck()
+    {
+    	List<sanPham> list = daoSP.getAllSP();
+    	 tablemodel.setRowCount(0);
+    	 for (sanPham x : list) {
+    		 	table_SP.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(new JCheckBox()));
+    	       	table_SP.getColumnModel().getColumn(2).setCellRenderer(table_SP.getDefaultRenderer(Boolean.class));
+    	        
+    	       	tablemodel.addRow(new Object[] {
+    	               x.getMaSP(), x.getTenSP(),x.getKhuyenMai().getMaKhuyenMai() != null && kmDao.layKhuyenMaiTuSanPham(x.getMaSP())!= null ? true: false
+    	            });
+    	 }
     }
 // Mã khuyến mãi tự động
 	public String deFaultID()
@@ -1092,39 +1070,19 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 		txtChonNgayKT.getCalendarButton().setEnabled(lock);
 		txtChonNgayBD.getCalendarButton().setEnabled(lock);
 		chkApAll.setEnabled(lock);
-		rdApDung.setEnabled(lock);
-		rdHetHan.setEnabled(lock);
 		btnLuu.setEnabled(lock);
+		table_SP.setEnabled(lock);
 		
 	}
 // Sự kiện click
 	@Override
 	public void mouseClicked(MouseEvent e) {
+		Object o = e.getSource();
+		if(o.equals(tableThongTinKM))
+		{
+			clickTrongKhuyenMai();
+		}
 		
-		btnThem.setEnabled(false);
-		int row = tableThongTinKM.getSelectedRow();
-		
-		txtMaKM.setText(tablemodel1.getValueAt(row, 0).toString());
-		
-		txtTenKM.setText(tablemodel1.getValueAt(row, 1).toString());
-		int phanTram = (int) tablemodel1.getValueAt(row, 2);
-	    cboPhanTram.setSelectedItem(phanTram);		
-		Date ngayBatDau = (Date) tablemodel1.getValueAt(row, 3);
-	    Date ngayKetThuc = (Date) tablemodel1.getValueAt(row, 4);
-	    txtChonNgayBD.setDate(ngayBatDau);
-	    txtChonNgayKT.setDate(ngayKetThuc);
-	    docDuLieuSPByMaKM(txtMaKM.getText());
-		// Lấy trạng thái từ dòng đã chọn trong bảng
-	    String trangThaiText = tablemodel1.getValueAt(row, 5).toString();
-
-	    // Kiểm tra và cập nhật trạng thái theo giá trị
-	    if (trangThaiText.equals("Đang áp dụng")) {
-	        rdApDung.setSelected(true);
-	        rdHetHan.setSelected(false);
-	    } else if (trangThaiText.equals("Hết hạn")) {
-	        rdApDung.setSelected(false);
-	        rdHetHan.setSelected(true);
-	    }
 	    
 	    
 	    
@@ -1154,4 +1112,77 @@ public class FrmKhuyenMai extends JFrame implements ActionListener, MouseListene
 		// TODO Auto-generated method stub
 		
 	}
+	public void clickTrongKhuyenMai()
+	{
+		docDuLieuSP();
+		btnThem.setEnabled(false);
+		int row = tableThongTinKM.getSelectedRow();
+		
+		txtMaKM.setText(tablemodel1.getValueAt(row, 0).toString());
+		
+		txtTenKM.setText(tablemodel1.getValueAt(row, 1).toString());
+		int phanTram = (int) tablemodel1.getValueAt(row, 2);
+	    cboPhanTram.setSelectedItem(phanTram);		
+		Date ngayBatDau = (Date) tablemodel1.getValueAt(row, 3);
+	    Date ngayKetThuc = (Date) tablemodel1.getValueAt(row, 4);
+	    txtChonNgayBD.setDate(ngayBatDau);
+	    txtChonNgayKT.setDate(ngayKetThuc);
+	    table_SP.setEnabled(false);
+	    docDuLieuSPByMaKM(txtMaKM.getText());
+	    selectedRowsValues = kmDao.dsMaSPKM(txtMaKM.getText());
+		// Lấy trạng thái từ dòng đã chọn trong bảng
+	    String trangThaiText = tablemodel1.getValueAt(row, 5).toString();
+
+	    // Kiểm tra và cập nhật trạng thái theo giá trị
+	    if (trangThaiText.equals("Đang áp dụng")) {
+	        rdApDung.setSelected(true);
+	        rdHetHan.setSelected(false);
+	    } else if (trangThaiText.equals("Hết hạn")) {
+	        rdApDung.setSelected(false);
+	        rdHetHan.setSelected(true);
+	    }
 	}
+	public void xoaSanPhamApDung() {
+	    List<sanPham> list = daoSP.getAllSP();
+	        // Kiểm tra giá trị cột 2 của mỗi dòng
+	    	 for (sanPham x : list) {
+	    		 String km =  kmDao.layKhuyenMaiTuSanPham(x.getMaSP());
+	    		 System.out.println(km);
+	    		 if(km != null)
+	    		 {
+	    			  for (int row = 0; row < tablemodel.getRowCount(); row++) {
+	    			    	String value = (String) tablemodel.getValueAt(row, 0);
+	    			    	if(x.getMaSP().equalsIgnoreCase(value))
+	    			    	{
+	    			    		tablemodel.removeRow(row);
+	    			    	}
+	    			  }
+	    		 }
+	    		
+	                
+	}
+	}
+//	Bắt sự kiện click ô checkBox
+	public void checkedBox()
+	{
+		 
+        int selectedRow = table_SP.getSelectedRow();
+        int columnIndex = 2; // Chỉ mục cột 2, có thể thay đổi theo cột của bạn
+      
+        if (selectedRow != -1 && table_SP.getSelectedColumn() == columnIndex) {
+            // Lấy giá trị của ô checkbox
+        	 String selectedValue = tablemodel.getValueAt(selectedRow, 0).toString();
+        	 
+        	 boolean isChecked = (boolean) tablemodel.getValueAt(selectedRow, columnIndex);
+
+             if (isChecked) {
+            	 selectedRowsValues.add(selectedValue);
+              
+             } else {
+            	 selectedRowsValues.remove(selectedValue);
+             }
+             
+             
+         }
+	}
+}

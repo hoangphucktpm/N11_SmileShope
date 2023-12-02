@@ -48,6 +48,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -486,12 +489,10 @@ public class FrmKhachHang extends JFrame implements ActionListener, MouseListene
 	        for (KhachHang khachHang : list) {
 	            String gioiTinhText = dinhDangGT(khachHang);
 	            float diemTichLuy = khDao.getDiem(khachHang.getMaKH());
-	            String loaiKhachHang = khDao.getTenLoaiKH(khachHang.getMaKH());
-
+	            khDao.updateLoaiKH();
 	            // Kiểm tra điều kiện và cập nhật loại khách hàng
-	            if (diemTichLuy >= 50000) {
-	                loaiKhachHang = "VIP";
-	            }
+	          
+	           String loaiKhachHang = khDao.getTenLoaiKH(khachHang.getMaKH());
 
 	            tablemodel.addRow(new Object[] { khachHang.getMaKH(), khachHang.getTenKH(), gioiTinhText,
 	                    khachHang.getSdt(), khachHang.getCCCD(), khachHang.getNgaySinh(), khachHang.getEmail(),
@@ -905,7 +906,21 @@ public void themKH()
 			JOptionPane.showMessageDialog(this, "Ngày sinh không được rỗng");
 			return null;
 		}
+		else {
+			
+	        LocalDate ngaySinhLocal = ngaySinh.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+	        LocalDate ngayHienTaiLocal = LocalDate.now();
 
+	        int tuoi = Period.between(ngaySinhLocal, ngayHienTaiLocal).getYears();
+
+	        // Kiểm tra xem người dùng có đủ 18 tuổi không
+	        if (tuoi >= 18) {
+	            // Người dùng đủ tuổi
+	        } else {
+	            JOptionPane.showMessageDialog(this, "Bạn chưa đủ 18 tuổi");
+	            return null;
+	        }
+		}
 		try {
 			kh = new KhachHang(maKH, tenKH, sdt, CCCD, ngaySinh, diaChi, gioiTinh, null, mail,dTichLuy);
 			return kh;

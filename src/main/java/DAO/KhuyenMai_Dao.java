@@ -360,6 +360,61 @@ public class KhuyenMai_Dao{
 
 			        return true;
 			    }
+			 public void capNhatNull(String maKM)
+			 {
+				 Connection con = ConnectDatabase.getInstance().getConnection();
+			        PreparedStatement stmt = null;
+
+			        try {
+			            String sql = "update SanPham set KhuyenMai = null where KhuyenMai = '" + maKM +"'";
+			            stmt = con.prepareStatement(sql);
+			            stmt.executeUpdate();
+			        } catch (SQLException e) {
+			            e.printStackTrace();
+			       
+			        }
+
+			 }
+			 public List<String> dsMaSPKM (String ma)
+			 {
+				 List<String> list = new ArrayList<>();
+				  try {
+				        Connection con = ConnectDatabase.getInstance().getConnection();
+				        String sql = "select maSp from SanPham where KhuyenMai = '" + ma +"'";
+				        PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+				        ResultSet rs = preparedStatement.executeQuery();
+
+				        while (rs.next()) {
+				          String maSP = rs.getString(1);
+				            list.add(maSP);
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    }
+
+				    return list;
+			 }
+			 public String layKhuyenMaiTuSanPham (String ma)
+			 {
+				 String km = "";
+				  try {
+				        Connection con = ConnectDatabase.getInstance().getConnection();
+				        String sql = "select KhuyenMai from SanPham where maSp = '" + ma +"'";
+				        PreparedStatement preparedStatement = con.prepareStatement(sql);
+
+				        ResultSet rs = preparedStatement.executeQuery();
+
+				        while (rs.next()) {
+				          km = rs.getString(1);
+				            
+				        }
+				    } catch (SQLException e) {
+				        e.printStackTrace();
+				    }
+
+				    return km;
+			 }
 }
 
 

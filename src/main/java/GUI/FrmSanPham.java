@@ -791,6 +791,7 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 		for (sanPham x : list) {
 			float VAT = x.getVAT();
 			String km =  dao.getKMTheoTen(x.getKhuyenMai().getMaKhuyenMai()  );
+			int pt = dao.getKMTheoPhanTram(x.getMaSP());
 			if (x.isTinhTrang() == true) {
 				sta = "Còn hàng";
 			} else
@@ -801,25 +802,26 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 			} else
 				VAT = 0;
 			double giaBan = tinhGiaBan(x.getGiaNhap()) + VAT;
-
+			double giaBanKM = (tinhGiaBan(x.getGiaNhap()) + VAT) - (((tinhGiaBan(x.getGiaNhap())) * pt )/100);
 			if (x.getKhuyenMai().getMaKhuyenMai() == null) {
 //				Không có khuyến mãi
-				giaBan = x.getGiaBan();
+
 				String maCL = x.getChatLieu().getMaChatLieu();
 				
 				tablemodel.addRow(new Object[] { d++, x.getMaSP(), x.getTenSP(), x.getMaLoai().getMaLoai(),
 						tien.format( x.getGiaNhap()), x.getSoLuong(), x.getNgayNhap(), x.getNhaCungCap().getMaNhaCungCap(),
 						dao.getTenChatLieu(maCL) +  "(" +dao.getMoTaChatLieu(maCL)+ ")", x.getSize(), x.getMauSac(), x.getDonVitinh(), 0, VAT, sta,
-						x.getGiaBan() });
+						tien.format( giaBan) });
 			} else {
 //				có khuyến mãi
-				giaBan = x.getGiaBan() ;
+
 				String maCL = x.getChatLieu().getMaChatLieu();
 				
+
 				tablemodel.addRow(new Object[] { d++, x.getMaSP(), x.getTenSP(), x.getMaLoai().getMaLoai(),
 						tien.format( x.getGiaNhap()), x.getSoLuong(), x.getNgayNhap(), x.getNhaCungCap().getMaNhaCungCap(),
 						dao.getTenChatLieu(maCL) +  "(" +dao.getMoTaChatLieu(maCL)+ ")", x.getSize(), x.getMauSac(), x.getDonVitinh(), km, VAT, sta,
-						tien.format( x.getGiaBan()) });
+						tien.format( giaBanKM) });
 			}
 
 		}
@@ -834,6 +836,7 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 		dm.getDataVector().removeAllElements();
 
 	}
+	
 
 	public void luuThayDoi() throws ParseException {
 		
@@ -887,7 +890,7 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 				if (kmai.getMaKhuyenMai().equalsIgnoreCase(km))
 				{
 					maKM = kmai.getMaKhuyenMai();
-					phanTram = dao.getKMTheoPhanTram(maKM);
+					phanTram = dao.getKMTheoPhanTram(maSP);
 				}
 		}
 		}
@@ -930,7 +933,7 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 
 			if (chkThem == true) {
 				try {
-
+					giaBan = (tinhGiaBan(giaNhap)  * (1 - (float)((float)phanTram / 100))) + VAT;
 					boolean spMoi = dao.them(maSP, tenSP, maNCC, maKM, giaNhap, soLuong, ngayNhapsql, img, mauSac,
 							kichThuoc, maChatLieu, tinhTrang, dvt, maLoai, thue, giaBan);
 					
@@ -957,23 +960,32 @@ public class FrmSanPham extends JFrame implements ActionListener, MouseListener 
 				}
 			} else if (chkSua == true) {
 				if (img != null) {
-					boolean spMoi = dao.sua(tenSP, maNCC, maKM, giaNhap, soLuong, ngayNhapsql, folderName, mauSac,
-							kichThuoc, maChatLieu, tinhTrang, dvt, maLoai, thue, giaBan, maSP);
-					if (spMoi) {
-						btnSua.setText("Sửa");
-						xoaAllDataTable();
-						docDuLieu();
-						reSet();
-						JOptionPane.showMessageDialog(this, "Sửa thành công");
-						btnSua.setIcon(new ImageIcon("Anh\\sua.png"));
-						chkThem = false;
-						chkSua = false;
-						lock = false;
-						btnLuu.setEnabled(false);
-						btnThem.setEnabled(true);
-					} else
-						JOptionPane.showMessageDialog(this, "Sửa thất bại.");
+					giaBan = (tinhGiaBan(giaNhap)  * (1 - (float)((float)phanTram / 100))) + VAT;
+					int soLuongBanDau = soLuong;
+					if(soLuongBanDau !=  Integer.parseInt(txtSoLuong.getText())) {
+						ngayNhapsql = new java.sql.Date(System.currentTimeMillis());
+						 boolean spMoi = dao.sua(tenSP, maNCC, maKM, giaNhap, soLuong, ngayNhapsql, folderName, mauSac,
+					                kichThuoc, maChatLieu, tinhTrang, dvt, maLoai, thue, giaBan, maSP);
+						 if (spMoi) {
+								btnSua.setText("Sửa");
+								xoaAllDataTable();
+								docDuLieu();
+								reSet();
+								JOptionPane.showMessageDialog(this, "Sửa thành công");
+								btnSua.setIcon(new ImageIcon("Anh\\sua.png"));
+								chkThem = false;
+								chkSua = false;
+								lock = false;
+								btnLuu.setEnabled(false);
+								btnThem.setEnabled(true);
+							} else
+								JOptionPane.showMessageDialog(this, "Sửa thất bại.");
+					}
+			       
+					
 				} else {
+					giaBan = (tinhGiaBan(giaNhap)  * (1 - (float)((float)phanTram / 100))) + VAT;
+					
 					boolean spMoi = dao.suaKhongAnh(tenSP, maNCC, maKM, giaNhap, soLuong, ngayNhapsql, mauSac,
 							kichThuoc, maChatLieu, tinhTrang, dvt, maLoai, thue, giaBan, maSP);
 					if (spMoi) {

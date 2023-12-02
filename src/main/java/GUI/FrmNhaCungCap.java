@@ -90,12 +90,6 @@ public class FrmNhaCungCap extends JFrame implements ActionListener, MouseListen
 	private List<String> listNCC= new ArrayList<>();
 	private List<String> listTimNCC= new ArrayList<>();
 
-	public static JComboBox cmbNCC;
-
-	private DefaultComboBoxModel cboModeMa = new DefaultComboBoxModel();
-	private DefaultComboBoxModel cboModeNCC= new DefaultComboBoxModel();
-	private DefaultComboBoxModel cboModeTimNCC= new DefaultComboBoxModel();
-
 	private NhaCungCap listN = new NhaCungCap();
 	private JButton btnLuu;
 	
@@ -273,6 +267,7 @@ public class FrmNhaCungCap extends JFrame implements ActionListener, MouseListen
 		comboBox = new JComboBox();
 		comboBox.setBackground(new Color(255, 255, 255));
 		comboBox.setBounds(233, 27, 432, 22);
+		comboBox.setEditable(true);
 		pnTable.add(comboBox);
 		
 		lblTK = new JLabel("Nhập thông tin tìm kiếm:");
@@ -644,7 +639,6 @@ public class FrmNhaCungCap extends JFrame implements ActionListener, MouseListen
 				}
 				for (String tinhTrangTim : tinhTrang) {
 					comboBox.addItem(tinhTrangTim);
-					System.out.println(tinhTrang);
 				}
 			}
 		}
@@ -665,7 +659,7 @@ public class FrmNhaCungCap extends JFrame implements ActionListener, MouseListen
 		}
 		if (tim.equalsIgnoreCase(""))
 		{
-			JOptionPane.showMessageDialog(this, "Vui nhập nhập thông tin muốn tìm!");
+			JOptionPane.showMessageDialog(this, "Vui lòng nhập thông tin muốn tìm!");
 			return;
 		}
 		xoaAllDataTable();

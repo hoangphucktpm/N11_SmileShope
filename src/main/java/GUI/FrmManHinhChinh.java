@@ -63,6 +63,7 @@ public class FrmManHinhChinh extends JFrame implements ActionListener,MenuListen
 	private JMenuBar menuBar_DangXuat;
 	private FrmNhaCungCap frmTK = new FrmNhaCungCap();
 	private FrmLapHoaDon frmLHĐ = new FrmLapHoaDon();
+	private FrmTroGiup frmTG = new FrmTroGiup();
 	private FrmXemHoaDon frmXHĐ = new FrmXemHoaDon();
 	private FrmKhuyenMai frmKM = new FrmKhuyenMai();
 	private static JMenu mnNhaCungCap;
@@ -82,14 +83,15 @@ public class FrmManHinhChinh extends JFrame implements ActionListener,MenuListen
 	private FrmThongKeHoaDon frmTKHĐ = new FrmThongKeHoaDon();
 	private FrmThongKeTinhTrangSP frmTKTTSP = new FrmThongKeTinhTrangSP();
 	private JMenu mnDangXuat;
-	private JMenu mnTroGiup;
+	private static JMenu mnTroGiup;
 	private JMenuItem mntmThongKeHoaDonDaLap;
 	private JMenuItem mntmThongKeTTSP;
 	private static JButton btnThongTinCaNhan;
 	private JMenuItem mntmDangXuat;
 	JMenuItem mntmLapHoaDon;
 	private JMenuItem mntmXemHoaDon;
-	private JMenu mnKhuyenMai;
+
+	JMenu mnKhuyenMai;
 	private JMenu mnThongKe;
 	private static JMenuItem mntmThongKeDoanhThu;
 	private JTabbedPane tabbedPane;
@@ -101,9 +103,6 @@ public class FrmManHinhChinh extends JFrame implements ActionListener,MenuListen
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	
 	
-	
-	
-
 	/**
 	 * Launch the application.
 	 */
@@ -528,6 +527,29 @@ public class FrmManHinhChinh extends JFrame implements ActionListener,MenuListen
 								tabbedPane.remove(tabbedPane.getSelectedComponent());
 								tabbedPane.add(frmSanPham.getContentPane());
 								tabbedPane.setSelectedComponent(frmSanPham.getContentPane());
+							}
+							
+							@Override
+							public void menuDeselected(MenuEvent e) {
+								// TODO Auto-generated method stub
+								
+							}
+							
+							@Override
+							public void menuCanceled(MenuEvent e) {
+								// TODO Auto-generated method stub
+								
+							}
+						});
+						
+						mnTroGiup.addMenuListener(new MenuListener() {
+							
+							@Override
+							public void menuSelected(MenuEvent e) {
+								// TODO Auto-generated method stub
+								tabbedPane.remove(tabbedPane.getSelectedComponent());
+								tabbedPane.add(frmTG.getContentPane());
+								tabbedPane.setSelectedComponent(frmTG.getContentPane());
 							}
 							
 							@Override
